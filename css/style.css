@@ -11,7 +11,7 @@ body {
 
 h1 {
 	 font-size: 52px;
-	 line-height: 60px;
+	 line-height: 52px;
 	 margin: 0px 0px 15px 0px;
 	 font-weight: 400;
 	 font-style: normal;
@@ -59,7 +59,8 @@ blockquote.pull-quote {
 div.content {
 	 margin: 0 auto;
 	 text-align: left;
-	 width: 52.881%;
+	 width: 35em;
+	 max-width: 80%;
 	 padding: 50px 0px 0px 0px;
 }
 
@@ -118,6 +119,11 @@ a:hover {
 	color: #999;
 }
 
+.sitetitle {
+	border-bottom: 1px dotted #999;
+	padding-bottom: 0.5em;
+}
+
 .footer {
 	border-top: 1px dotted #999;
 }
@@ -126,4 +132,3 @@ a:hover {
 	font-size: 14px;
 	color: #999;
 }
-
