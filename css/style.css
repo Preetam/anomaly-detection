@@ -159,3 +159,8 @@ ol {
     list-style-type: decimal;
     padding: 1em;
 }
+
+.math {
+	font-size: 20px;
+	margin: 0;
+}
