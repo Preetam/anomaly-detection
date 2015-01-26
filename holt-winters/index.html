@@ -3,18 +3,28 @@
 
 <head>
 <meta charset="utf-8">
-<title>Anomaly Detection</title>
-<link rel="stylesheet" type="text/css" href="css/reset.css" media="all">
-<link rel="stylesheet" type="text/css" href="css/style.css" media="all">
+<title>Anomaly Detection - Holt-Winters Forecasting</title>
+<link rel="stylesheet" type="text/css" href="../css/reset.css" media="all">
+<link rel="stylesheet" type="text/css" href="../css/style.css" media="all">
 <link href="http://fonts.googleapis.com/css?family=Crimson+Text:700italic,400,700,400italic" rel="stylesheet" type="text/css">
+
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
 </head>
 
 <body>
 <div class="content">
-	<h2 class="sitetitle">Anomaly Detection</h2>
+	<h2 class="sitetitle"><a href="../">Anomaly Detection</a></h2>
 	<h1>Holt-Winters Forecasting</h1>
 	<h3>Exponential smoothing for level, trend, and seasonality.</h3>
 	<h5>Description of Holt-Winters method.</h5>
+
+	\[
+		s_t = \alpha \cdot x_{t-1} + (1 - \alpha) \cdot s_{t-1}
+	\]
+
 	<p><span class="highlight">TODO</span></p>
 
 	<div class="footer">

@@ -90,6 +90,11 @@ h2.sitetitle {
 	 letter-spacing: 1px;
 }
 
+h2.sitetitle a {
+	text-decoration: none;
+	border: none;
+}
+
 p.note {
 	 background-color: rgba(0, 0, 0, 1);
 	 color: rgba(240, 240, 240, 1);
@@ -131,4 +136,26 @@ a:hover {
 .footer p {
 	font-size: 14px;
 	color: #999;
+}
+
+hr {
+	border: none;
+	width: 40%;
+	border-bottom: 1px dotted #aaa;
+	height: 1px;
+}
+
+ul {
+  list-style: disc;
+  list-style-position: outside;
+}
+
+li {
+  padding: 0.1em;
+  margin-left: 1em;
+}
+
+ol {
+    list-style-type: decimal;
+    padding: 1em;
 }
