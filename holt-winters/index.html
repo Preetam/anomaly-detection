@@ -7,7 +7,16 @@
 <link rel="stylesheet" type="text/css" href="../css/reset.css" media="all">
 <link rel="stylesheet" type="text/css" href="../css/style.css" media="all">
 <link href="http://fonts.googleapis.com/css?family=Crimson+Text:700italic,400,700,400italic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic' rel='stylesheet' type='text/css'>
 
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+	tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+	"HTML-CSS": {
+		matchFontHeight: false
+	}
+});
+</script>
 <script type="text/javascript"
   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
@@ -21,13 +30,33 @@
 	<h3>Exponential smoothing for level, trend, and seasonality.</h3>
 	<h5>Description of Holt-Winters method.</h5>
 
+	<p>Simple exponential smoothing $\alpha$</p>
 	<div class='math'>
 	\[
-		s_t = \alpha \cdot x_{t-1} + (1 - \alpha) \cdot s_{t-1}
+		s_t = \alpha \cdot x_{t} + (1 - \alpha) \cdot s_{t-1}
 	\]
 	</div>
 
 	<p><span class="highlight">TODO</span></p>
+
+	<pre class="code">m &lt;- HoltWinters( ts(cos(c(1:96)), frequency=<span class="highlight">6</span>), gamma=T)
+p &lt;- predict(m, 10, prediction.interval = TRUE)
+plot(m, p)
+</pre>
+	<img src='img/hw1.png'/>
+
+	<pre class="code">m &lt;- HoltWinters( ts(cos(c(1:96)), frequency=<span class="highlight">48</span>), gamma=T)
+p &lt;- predict(m, 10, prediction.interval = TRUE)
+plot(m, p)
+</pre>
+	<img src='img/hw2.png'/>
+
+	<pre class="code">volcanodust &lt;- scan("http://robjhyndman.com/tsdldata/annual/dvi.dat", skip=1)
+m &lt;- HoltWinters(volcanodust, gamma=F)
+p &lt;- predict(m, 10, prediction.interval = TRUE)
+plot(m, p, main='Volcano Dust')
+</pre>
+	<img src='img/hw3.png'/>
 
 	<div class="footer">
 		<p>Copyright &copy; 2015 Preetam Jinka</p>

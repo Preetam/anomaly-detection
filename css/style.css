@@ -1,93 +1,92 @@
 body {
-	 padding: 0px 0 50px 0;
-	 font-size: 16px;
-	 min-height: 100%;
-	 font-family: "Crimson Text";
-	 font-weight: 400;
-	 font-style: normal;
-	 line-height: 25px;
-	 color: #333;
+	padding: 0px 0 50px 0;
+	font-size: 16px;
+	min-height: 100%;
+	font-weight: 400;
+	font-style: normal;
+	line-height: 25px;
+	color: #333;
+	font-family: 'PT Sans', sans-serif;
 }
 
 h1 {
-	 font-size: 52px;
-	 line-height: 52px;
-	 margin: 0px 0px 15px 0px;
-	 font-weight: 400;
-	 font-style: normal;
+	font-size: 52px;
+	line-height: 52px;
+	margin: 0px 0px 15px 0px;
+	font-weight: 400;
+	font-style: normal;
 }
 
 h2 {
-	 font-size: 36px;
-	 line-height: 46px;
-	 margin: 0px 0px 25px 0px;
+	font-size: 36px;
+	line-height: 46px;
+	margin: 0px 0px 25px 0px;
 }
 
 h3 {
-	 font-size: 28px;
-	 line-height: 36px;
-	 margin: 0px 0px 19px 0px;
-	 font-family: "Crimson Text";
-	 font-weight: 400;
-	 font-style: italic;
+	font-size: 28px;
+	line-height: 36px;
+	margin: 0px 0px 19px 0px;
+	font-weight: 400;
+	font-style: italic;
 }
 
 h4 {
-	 margin-bottom: 25px;
-	 font-weight: 600;
-	 font-style: normal;
+	margin-bottom: 25px;
+	font-weight: 600;
+	font-style: normal;
 }
 
 p {
-	 margin: 0px 0px 25px 0px;
-	 text-transform: inherit;
-	 font-size: 17px;
+	margin: 0px 0px 25px 0px;
+	text-transform: inherit;
+	font-size: 17px;
 }
 
 p.intro {
-	 font-size: 20px;
-	 line-height: 29px;
-	 margin: 0px 0px 13px 0px;
+	font-size: 20px;
+	line-height: 29px;
+	margin: 0px 0px 13px 0px;
 }
 
 blockquote.pull-quote {
-	 margin: 0em 1em 1em 0em;
-	 border-left: 3px solid #ccc;
-	 padding: 0em 0em 0em 0.7em;
+	margin: 0em 1em 1em 0em;
+	border-left: 3px solid #ccc;
+	padding: 0em 0em 0em 0.7em;
 }
 
 div.content {
-	 margin: 0 auto;
-	 text-align: left;
-	 width: 35em;
-	 max-width: 80%;
-	 padding: 50px 0px 0px 0px;
+	margin: 0 auto;
+	text-align: left;
+	width: 35em;
+	max-width: 80%;
+	padding: 50px 0px 0px 0px;
 }
 
 h5 {
-	 margin: 0px 0px 25px 0px;
-	 font-size: 20px;
-	 line-height: 25px;
+	margin: 0px 0px 25px 0px;
+	font-size: 20px;
+	line-height: 25px;
 }
 
 p.quote {
-	 font-size: 23px;
-	 line-height: 28px;
-	 font-style: italic;
-	 color: #666666;
-	 margin: 0px;
+	font-size: 23px;
+	line-height: 28px;
+	font-style: italic;
+	color: #666666;
+	margin: 0px;
 }
 
 blockquote {
-	 font-size: 26px;
-	 line-height: 37px;
-	 margin-bottom: 25px;
+	font-size: 26px;
+	line-height: 37px;
+	margin-bottom: 25px;
 }
 
 h2.sitetitle {
-	 font-size: 14px;
-	 line-height: 100%;
-	 letter-spacing: 1px;
+	font-size: 14px;
+	line-height: 100%;
+	letter-spacing: 1px;
 }
 
 h2.sitetitle a {
@@ -96,13 +95,13 @@ h2.sitetitle a {
 }
 
 p.note {
-	 background-color: rgba(0, 0, 0, 1);
-	 color: rgba(240, 240, 240, 1);
-	 font-size: 18px;
-	 line-height: 150%;
-	 margin: 0em 1em 1em 0em;
-	 border-left: 3px solid #444;
-	 padding: 0.7em;
+	background-color: rgba(0, 0, 0, 1);
+	color: rgba(240, 240, 240, 1);
+	font-size: 18px;
+	line-height: 150%;
+	margin: 0em 1em 1em 0em;
+	border-left: 3px solid #444;
+	padding: 0.7em;
 }
 
 .highlight {
@@ -160,7 +159,20 @@ ol {
     padding: 1em;
 }
 
-.math {
-	font-size: 20px;
+.math, .MathJax {
+	font-size: 18px;
 	margin: 0;
+	font-family: serif;
+}
+
+pre.code {
+	font-family: monospace;
+	background-color: #fafafa;
+	padding: 1.5em;
+	font-size: 12px;
+}
+
+.content img {
+	display: block;
+	margin: 1em auto;
 }
