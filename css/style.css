@@ -10,22 +10,18 @@ body {
 }
 
 h1 {
-	font-size: 52px;
-	line-height: 52px;
+	font-size: 2em;
 	margin: 0px 0px 15px 0px;
-	font-weight: 400;
-	font-style: normal;
+	font-weight: 700;
 }
 
 h2 {
-	font-size: 36px;
-	line-height: 46px;
+	font-size: 1.5em;
 	margin: 0px 0px 25px 0px;
 }
 
 h3 {
-	font-size: 28px;
-	line-height: 36px;
+	font-size: 1.25em;
 	margin: 0px 0px 19px 0px;
 	font-weight: 400;
 	font-style: italic;
@@ -37,10 +33,16 @@ h4 {
 	font-style: normal;
 }
 
+h5 {
+	margin: 0px 0px 25px 0px;
+	font-size: 1.1em;
+	font-weight: bold;
+	line-height: 25px;
+}
+
 p {
 	margin: 0px 0px 25px 0px;
 	text-transform: inherit;
-	font-size: 17px;
 }
 
 p.intro {
@@ -61,12 +63,6 @@ div.content {
 	width: 35em;
 	max-width: 80%;
 	padding: 50px 0px 0px 0px;
-}
-
-h5 {
-	margin: 0px 0px 25px 0px;
-	font-size: 20px;
-	line-height: 25px;
 }
 
 p.quote {
@@ -170,9 +166,45 @@ pre.code {
 	background-color: #fafafa;
 	padding: 1.5em;
 	font-size: 12px;
+	line-height: 18px;
 }
 
 .content img {
 	display: block;
 	margin: 1em auto;
+}
+
+sup {
+	vertical-align: super;
+	font-size: .6em;
+}
+
+@media print {
+	body {
+		font-size: 12px;
+		color: black;
+	}
+
+	div.content {
+		width: 100%;
+	}
+
+	.math, .MathJax {
+		font-size: 12px;
+		margin: 0;
+		font-family: serif;
+	}
+
+	img {
+		width: 70%;
+	}
+
+	.footer {
+		display: none;
+	}
+}
+
+code {
+	font-family: monospace;
+	font-size: 0.80em;
 }

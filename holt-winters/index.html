@@ -28,16 +28,60 @@ MathJax.Hub.Config({
 	<h2 class="sitetitle"><a href="../">Anomaly Detection</a></h2>
 	<h1>Holt-Winters Forecasting</h1>
 	<h3>Exponential smoothing for level, trend, and seasonality.</h3>
-	<h5>Description of Holt-Winters method.</h5>
 
-	<p>Simple exponential smoothing $\alpha$</p>
-	<div class='math'>
+	<p>The Holt-Winters method is the method of triple exponential smoothing. The exponential moving average
+	filter applied three times accounts for level, trend, and seasonality for a given time series.</p>
+
+	<h5>Simple exponential smoothing</h5>
+
+	<p>First, we begin with the exponentially weighted moving average. It is defined recursively as follows:</p>
+
 	\[
-		s_t = \alpha \cdot x_{t} + (1 - \alpha) \cdot s_{t-1}
+		s_t = \alpha x_{t} + (1 - \alpha) s_{t-1}
 	\]
-	</div>
 
-	<p><span class="highlight">TODO</span></p>
+	<p>$s_t$ is the smoothed time series. The parameter $\alpha$ is the level coefficient.</p>
+
+	<p><span class='highlight'>Question:</span> How can this be expressed in the ARIMA form? See <a href='#cite1'>#1</a>.</p>
+
+	<h5>Double exponential smoothing</h5>
+
+	<p>Next, we want to modify our model to account for some sort of <span class='highlight'>linear</span> trend.</p>
+
+	\[
+		s_t = \alpha x_{t} + (1 - \alpha) (s_{t-1} + b_{t-1}) \\
+		b_t = \beta (s_t - s_{t-1}) + (1 - \beta) b_{t-1}
+	\]
+
+	<p>Note that $b_t$ is essentially the EWMA-smoothed first difference of $s_t$.</p>
+
+	<h5>Triple exponential smoothing<sup><a href='#cite2'>2</a></sup></h5>
+
+	<p>Finally, we would like to account for seasonality. The following applies for <em>multiplicative</em> seasonality. The additive version is similar.</p>
+
+	\[
+		s_t = \alpha \frac{x_{t}}{g_{t-L}} + (1 - \alpha) (s_{t-1} + b_{t-1}) \\
+		b_t = \beta (s_t - s_{t-1}) + (1 - \beta) b_{t-1} \\
+		g_t = \gamma \frac{x_t}{s_t} + (1 - \gamma) g_{t-L}
+	\]
+
+	<p>$g_t$ is the seasonal component. $L$ represents the seasonality lag, which depends on the period.</p>
+
+	<p>The n-step ahead forecast is:</p>
+
+	\[
+		F_{t+m} = (s_t + m b_t) g_{t-L+m}
+	\]
+
+	<h5>Selection of parameters</h5>
+
+	<p>If explicit values for the parameters are not given, R will attempt to find values that minimize the SSE.</p>
+
+	<hr />
+
+	<h5>Cosine time series example</h5>
+
+	<p>As a simple example, I attempted Holt-Winters forecasting on a simple cosine time series. The <code>HoltWinters</code> function will complain if a frequency is not specified, so I had to wrap the vector in a <code>ts</code> object and specify a frequency.</p>
 
 	<pre class="code">m &lt;- HoltWinters( ts(cos(c(1:96)), frequency=<span class="highlight">6</span>), gamma=T)
 p &lt;- predict(m, 10, prediction.interval = TRUE)
@@ -45,18 +89,69 @@ plot(m, p)
 </pre>
 	<img src='img/hw1.png'/>
 
+	<p>Specifying the correct frequency is very important. If a reasonable value is not chosen or found, the computed forecasts and confidence intervals will not be very accurate.</p>
+
 	<pre class="code">m &lt;- HoltWinters( ts(cos(c(1:96)), frequency=<span class="highlight">48</span>), gamma=T)
 p &lt;- predict(m, 10, prediction.interval = TRUE)
 plot(m, p)
 </pre>
 	<img src='img/hw2.png'/>
 
-	<pre class="code">volcanodust &lt;- scan("http://robjhyndman.com/tsdldata/annual/dvi.dat", skip=1)
-m &lt;- HoltWinters(volcanodust, gamma=F)
+	<h5>ARIMA</h5>
+
+	<p>In this example, I simulated points from an ARIMA process and added a linear trend. There is no seasonality.</p>
+
+	<pre class="code">ts.sim &lt;- arima.sim( list (
+                        order = c(2,0,0)
+                      , ar    = c(0.01, 0)
+                     )
+                   , n = 200)
+
+for(i in seq_along(ts.sim)) {
+  ts.sim[i] = ts.sim[i] + i*0.1;
+}
+
+ts.plot(ts.sim, xlab="", ylab="")
+</pre>
+
+	<img src='img/hw3.png'/>
+
+	<p>The <code>HoltWinters</code> function was used with <code>gamma=F</code> to specify that there is no seasonal component. The forecast generates what we would expect.</p>
+
+	<pre class='code'>m &lt;- HoltWinters(ts.sim, gamma=F)
 p &lt;- predict(m, 10, prediction.interval = TRUE)
+plot(m, p)</pre>
+
+	<img src='img/hw4.png'/>
+
+	<p>If we set <code>beta=F</code> as well, the predicted values are equal to the last EWMA value. This is expected because the simple exponential smoothing method assumes a fixed mean.</p>
+
+	<pre class='code'>m &lt;- HoltWinters(ts.sim, gamma=F, beta=F)
+p &lt;- predict(m, 10, prediction.interval = TRUE)
+plot(m, p)
+</pre>
+
+	<img src='img/hw5.png'/>
+
+	<h5>Volcano ash example</h5>
+
+	<p>The following time series represents the volcano dust veil index in the northern hemisphere. Clearly, this time series is not a typical zero-mean stationary series. In particular, the values are all non-negative. The confidence intervals generated using the <code>HoltWinters</code> function is rather high, and cross the x-axis.</p>
+
+	<pre class="code">volcanodust &lt;- scan( "http://robjhyndman.com/tsdldata/annual/dvi.dat"
+                   , skip=1)
+m &lt;- HoltWinters(volcanodust, gamma=F)
+p &lt;- predict(m, 20, prediction.interval = TRUE)
 plot(m, p, main='Volcano Dust')
 </pre>
-	<img src='img/hw3.png'/>
+
+	<img src='img/hw6.png'/>
+
+	<hr />
+
+	<ol>
+		<li><a id="cite1" href="http://people.duke.edu/~rnau/411avg.htm">http://people.duke.edu/~rnau/411avg.htm</a></li>
+		<li><a id="cite2" href='http://www.itl.nist.gov/div898/handbook/pmc/section4/pmc435.htm'>http://www.itl.nist.gov/div898/handbook/pmc/section4/pmc435.htm</a></li>
+	</ol>
 
 	<div class="footer">
 		<p>Copyright &copy; 2015 Preetam Jinka</p>
