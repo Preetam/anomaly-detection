@@ -1,5 +1,5 @@
 ###
-# Holt-Winters
+# Holt-Winters and AR(1) Forecasting
 ###
 # Copyright (c) 2015, Preetam Jinka
 # All rights reserved.
@@ -26,6 +26,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###
 
+# hw.new creates a new hw.obj.
 hw.new <- function(alpha = 0.1, beta = 0.1) {
   hw.obj <- list()
   hw.obj$alpha <- alpha
@@ -33,64 +34,115 @@ hw.new <- function(alpha = 0.1, beta = 0.1) {
   hw.obj$level <- 0
   hw.obj$level.value <- NULL
   hw.obj$trend.value <- NULL
-  hw.obj$error <- NULL
-  
+  hw.obj$error <- 1
+
+  # return the new hw.obj
   hw.obj
 }
 
+# hw.step updates the given hw.obj and returns
+# a new hw.obj with an updated state.
 hw.step <- function(hw.obj, new.value) {
   if (is.null(hw.obj)) {
     stop("hw.obj is NULL")
   }
-  
+
   if (is.null(hw.obj$level.value)) {
     # First value
     hw.obj$level.value <- new.value
     return(hw.obj)
   }
-  
+
   if (is.null(hw.obj$trend.value)) {
     # Second value
     hw.obj$trend.value <- 0
-    hw.obj$error <- (hw.obj$level.value - new.value)^2
     return(hw.obj)
   }
-  
+
   # Calculate new smoothed level value
   s <- hw.obj$alpha * new.value + (1 - hw.obj$alpha) * (hw.obj$level.value + hw.obj$trend.value)
-  
+
   # Calculate new smoothed trend value
   b <- hw.obj$beta * (s - hw.obj$level.value) + (1 - hw.obj$beta) * hw.obj$trend.value
-  
+
   # Calculate error
   e <- (hw.obj$level.value - new.value)^2
   hw.obj$error <- hw.obj$alpha * e + (1 - hw.obj$alpha) * hw.obj$error
-  
+
+  # Update level and trend components
   hw.obj$level.value <- s
   hw.obj$trend.value <- b
-  
+
   hw.obj
+}
+
+# arma.new creates a new arma.obj.
+arma.new <- function(phi) {
+  arma.obj <- list()
+  arma.obj$phi <- phi
+  arma.obj$predicted.value <- NULL
+
+  arma.obj
+}
+
+# arma.step updates the given arma.obj and returns
+# a new arma.obj with an updated state.
+arma.step <- function(arma.obj, new.value) {
+  arma.obj$predicted.value <- arma.obj$phi * new.value
+
+  arma.obj
 }
 
 ###
 # Test
 ###
-# sim <- arima.sim(list(ar=c(0.2)), n=2000)
-# hw.obj <- hw.step(hw.new(alpha=0.001), 0)
-# smoothed <- rep(NA, 2000)
-# low <- rep(NA, 2000)
-# high <- rep(NA, 2000)
-# for (i in seq(1,2000)) {
-#   hw.obj <- hw.step(hw.obj, sim[i])
-#   smoothed[i] <- hw.obj$level.value
-#   print(hw.obj$error)
-#   if (is.null(hw.obj$error) == F) {
-#     low[i] <- smoothed[i] - hw.obj$error * 3
-#     high[i] <- smoothed[i] + hw.obj$error * 3
-#   }
-# }
-# plot.ts(sim)
-# lines(smoothed, lwd=5)
-# lines(low, lwd=4, col='blue')
-# lines(high, lwd=4, col='blue')
+N <- 250
+phi <- 0.16
+
+# Simulate AR(1) with parameter phi for N points.
+sim <- arima.sim(list(ar=c(phi)), n=N)
+
+arma.obj <- arma.new(phi)
+hw.obj <- hw.new(alpha=0.05, beta=0.0)
+
 ###
+# Vectors to hold time series points.
+###
+
+# EWMA series
+smoothed <- rep(NA, N)
+low <- rep(NA, N)
+high <- rep(NA, N)
+
+# ARMA series
+arma.prediction <- rep(NA, N)
+arma.low <- rep(NA, N)
+arma.high <- rep(NA, N)
+
+# Iteration through N steps
+for (i in seq(1,N)) {
+  hw.obj <- hw.step(hw.obj, sim[i])
+  arma.obj <- arma.step(arma.obj, sim[i])
+
+  smoothed[i] <- hw.obj$level.value
+  arma.prediction[i] <- arma.obj$predicted.value
+
+  if (is.null(hw.obj$error) == F) {
+    low[i] <- smoothed[i] - hw.obj$error * 1.96
+    high[i] <- smoothed[i] + hw.obj$error * 1.96
+
+    arma.low[i] <- arma.prediction[i] - 1.96
+    arma.high[i] <- arma.prediction[i] + 1.96
+  }
+}
+
+###
+# Plotting
+###
+plot.ts(sim, ylim=c(-5,5))
+lines(smoothed, lwd=5, col='red')
+lines(arma.prediction, lwd=2, col='green')
+lines(low, lwd=4, lty='dashed', col='blue')
+lines(high, lwd=4, lty='dashed', col='blue')
+lines(arma.low, lwd=1, col='orange')
+lines(arma.high, lwd=1, col='orange')
