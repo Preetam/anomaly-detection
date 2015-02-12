@@ -127,8 +127,8 @@ plot.simulation <- function(N = 200, phi = 0.1, alpha = 0.01, beta = 0) {
     arma.prediction[i] <- arma.obj$predicted.value
 
     if (is.null(hw.obj$error) == F) {
-      low[i] <- smoothed[i] - hw.obj$error * 1.96
-      high[i] <- smoothed[i] + hw.obj$error * 1.96
+      low[i] <- smoothed[i] - sqrt(hw.obj$error) * 1.96
+      high[i] <- smoothed[i] + sqrt(hw.obj$error) * 1.96
 
       arma.low[i] <- arma.prediction[i] - 1.96
       arma.high[i] <- arma.prediction[i] + 1.96
@@ -148,10 +148,11 @@ plot.simulation <- function(N = 200, phi = 0.1, alpha = 0.01, beta = 0) {
   lines(arma.low,        lwd=1, lty=3, col='chartreuse4')
   lines(arma.high,       lwd=1, lty=3, col='chartreuse4')
 
-  legend('topright', c("AR series", "EWMA prediction", "AR prediction", "EWMA PI", "AR PI"),
+  legend('bottomleft', c("AR series", "EWMA prediction", "AR prediction", "EWMA PI", "AR PI"),
          col=c('black', 'purple1', 'chartreuse3', 'purple1', 'chartreuse4'),
          lwd=c(2,3,2,.5,1),
-         lty=c(1,1,3,1,3))
+         lty=c(1,1,3,1,3),
+         cex=0.7)
 }
 
 plot.simulation()
