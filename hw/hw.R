@@ -96,53 +96,66 @@ arma.step <- function(arma.obj, new.value) {
 ###
 # Test
 ###
-N <- 250
-phi <- 0.16
 
-# Simulate AR(1) with parameter phi for N points.
-sim <- arima.sim(list(ar=c(phi)), n=N)
+plot.simulation <- function(N = 200, phi = 0.1, alpha = 0.01, beta = 0) {
+  # Simulate AR(1) with parameter phi for N points.
+  sim <- arima.sim(list(ar=c(phi)), n=N)
 
-arma.obj <- arma.new(phi)
-hw.obj <- hw.new(alpha=0.05, beta=0.0)
+  arma.obj <- arma.new(phi)
+  hw.obj <- hw.new(alpha=alpha, beta=beta)
 
-###
-# Vectors to hold time series points.
-###
+  ###
+  # Vectors to hold time series points.
+  ###
 
-# EWMA series
-smoothed <- rep(NA, N)
-low <- rep(NA, N)
-high <- rep(NA, N)
+  # EWMA series
+  smoothed <- rep(NA, N)
+  low <- rep(NA, N)
+  high <- rep(NA, N)
 
-# ARMA series
-arma.prediction <- rep(NA, N)
-arma.low <- rep(NA, N)
-arma.high <- rep(NA, N)
+  # ARMA series
+  arma.prediction <- rep(NA, N)
+  arma.low <- rep(NA, N)
+  arma.high <- rep(NA, N)
 
-# Iteration through N steps
-for (i in seq(1,N)) {
-  hw.obj <- hw.step(hw.obj, sim[i])
-  arma.obj <- arma.step(arma.obj, sim[i])
+  # Iteration through N steps
+  for (i in seq(1,N)) {
+    hw.obj <- hw.step(hw.obj, sim[i])
+    arma.obj <- arma.step(arma.obj, sim[i])
 
-  smoothed[i] <- hw.obj$level.value
-  arma.prediction[i] <- arma.obj$predicted.value
+    smoothed[i] <- hw.obj$level.value
+    arma.prediction[i] <- arma.obj$predicted.value
 
-  if (is.null(hw.obj$error) == F) {
-    low[i] <- smoothed[i] - hw.obj$error * 1.96
-    high[i] <- smoothed[i] + hw.obj$error * 1.96
+    if (is.null(hw.obj$error) == F) {
+      low[i] <- smoothed[i] - hw.obj$error * 1.96
+      high[i] <- smoothed[i] + hw.obj$error * 1.96
 
-    arma.low[i] <- arma.prediction[i] - 1.96
-    arma.high[i] <- arma.prediction[i] + 1.96
+      arma.low[i] <- arma.prediction[i] - 1.96
+      arma.high[i] <- arma.prediction[i] + 1.96
+    }
   }
+
+  ###
+  # Plotting
+  ###
+  plot.ts(sim, lwd=2, ylim=c(-5,5), ylab='Value',
+          main='AR(1) with Exponential Smoothing',
+          sub=paste('phi = ', phi, ", alpha = ", alpha, ", beta = ", beta, sep=''))
+  lines(smoothed,        lwd=3, lty=1, col='purple1')
+  lines(arma.prediction, lwd=2, lty=6, col='chartreuse3')
+  lines(low,             lwd=.5, lty=1, col='purple1')
+  lines(high,            lwd=.5, lty=1, col='purple1')
+  lines(arma.low,        lwd=1, lty=3, col='chartreuse4')
+  lines(arma.high,       lwd=1, lty=3, col='chartreuse4')
+
+  legend('topright', c("AR series", "EWMA prediction", "AR prediction", "EWMA PI", "AR PI"),
+         col=c('black', 'purple1', 'chartreuse3', 'purple1', 'chartreuse4'),
+         lwd=c(2,3,2,.5,1),
+         lty=c(1,1,3,1,3))
 }
 
-###
-# Plotting
-###
-plot.ts(sim, ylim=c(-5,5))
-lines(smoothed, lwd=5, col='red')
-lines(arma.prediction, lwd=2, col='green')
-lines(low, lwd=4, lty='dashed', col='blue')
-lines(high, lwd=4, lty='dashed', col='blue')
-lines(arma.low, lwd=1, col='orange')
-lines(arma.high, lwd=1, col='orange')
+plot.simulation()
+plot.simulation(phi=0.5)
+plot.simulation(phi=0.2, alpha=0.1)
+plot.simulation(phi=0.2, alpha=0.01, beta=0.2)
+plot.simulation(phi=0.2, alpha=0.01, beta=0.01, N=300)
