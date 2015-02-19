@@ -154,9 +154,3 @@ plot.simulation <- function(N = 200, phi = 0.1, alpha = 0.01, beta = 0) {
          lty=c(1,1,3,1,3),
          cex=0.7)
 }
-
-plot.simulation()
-plot.simulation(phi=0.5)
-plot.simulation(phi=0.2, alpha=0.1)
-plot.simulation(phi=0.2, alpha=0.01, beta=0.2)
-plot.simulation(phi=0.2, alpha=0.01, beta=0.01, N=300)
