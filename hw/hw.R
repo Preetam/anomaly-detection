@@ -56,6 +56,7 @@ hw.step <- function(hw.obj, new.value) {
   if (is.null(hw.obj$trend.value)) {
     # Second value
     hw.obj$trend.value <- 0
+    hw.obj$level.value <- hw.obj$alpha * new.value + (1 - hw.obj$alpha) * hw.obj$level.value
     return(hw.obj)
   }
 
