@@ -3,17 +3,24 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{program}
+\usepackage[margin=1.25in]{geometry}
 
 \begin{document}
 
-\title{Anomaly Detection}
+\title{Anomaly Detection with Double Exponential Smoothing}
 \author{Preetam Jinka}
 
 \maketitle
 
 \section{Introduction}
 
-The Holt-Winters method is the method of triple exponential smoothing. The exponential moving average filter applied three times accounts for level, trend, and seasonality for a given time series. The single exponentially weighted moving average is defined as
+\subsection{Motivation}
+
+Anomaly detection in time series is used to detect observations that significantly deviate from a usual pattern or range. This is extremely important for monitoring systems. A major issue in monitoring systems is that they deal with many time series metrics with varying and complicated characteristics. It is unreasonable to fit accurate models to every time series to detect anomalous observations. We propose double exponential smoothing as a method of addressing this problem. Double exponential smoothing provides a method for adaptive anomaly detection of time series with minimal assumptions made on the input data.
+
+\subsection{Holt-Winters}
+
+The Holt-Winters method is generally known as a method of triple exponential smoothing. The exponential moving average filter applied three times accounts for level, trend, and seasonality for a given time series. The single exponentially weighted moving average is defined as
 
 \begin{equation} \label{single_ewma}
 s_t = \alpha x_{t} + (1 - \alpha) s_{t-1}.
@@ -30,13 +37,13 @@ b_t &= \beta (s_t - s_{t-1}) + (1 - \beta) b_{t-1}
 
 Finally, to account for a multiplicative seasonality, we introduce another smoothing parameter, $\gamma$.
 
-\begin{equation} \label{triple_ewma}
+\[
 \begin{aligned}
 s_t &= \alpha \frac{x_{t}}{g_{t-L}} + (1 - \alpha) (s_{t-1} + b_{t-1}) \\
 b_t &= \beta (s_t - s_{t-1}) + (1 - \beta) b_{t-1} \\
 g_t &= \gamma \frac{x_t}{s_t} + (1 - \gamma) g_{t-L}
 \end{aligned}
-\end{equation}
+\]
 
 For our purposes, we will not consider seasonality.
 
@@ -52,36 +59,47 @@ In the context of anomaly detection, we are interested in detecting points that 
 
 The AR(1) process is given by
 
-\begin{equation}
-x_t = \phi x_{t-1} + \varepsilon_t
-\end{equation}
+\[
+x_t = \phi x_{t-1} + \varepsilon_t.
+\]
 
 We first generate $N$ terms of an AR(1) process using the \texttt{arima.sim} function in R. The smoothed time series, $s_t$, is then computed iteratively using either \eqref{single_ewma} or \eqref{double_ewma}.
 
 The square-error time series is defined as
 
-\begin{equation} \label{error_ts}
-e_t = (1 - \alpha) e_{t-1} + \alpha (s_t - x_t)^2
-\end{equation}
+\[
+e_t = (1 - \alpha) e_{t-1} + \alpha (s_t - x_t)^2.
+\]
 
 $e_t$ serves as an exponentially-weighted moving MSE.
 
 The prediction intervals are computing using
 
-\begin{equation}
-\text{Prediction interval} = s_t \pm 1.96 \sqrt{e_t}
+\begin{equation} \label{s_t_prediction_interval}
+s_t \pm 1.96 \sqrt{e_t}.
 \end{equation}
 
-The following are plots of a simulated AR(1) with single and double exponential smoothing. Each plot also contains the AR(1) and EWMA predicted values, and the respective prediction intervals.
+The following are plots of a simulated AR(1) with single and double exponential smoothing. Each plot also contains the AR(1) and exponentially-weighted moving average (EWMA) predicted values, and the respective prediction intervals.
 
 \centerline{\includegraphics[scale=0.35]{plots/sim_1.pdf}}
+
+The first plot only has single exponential smoothing, i.e. the value of $\beta$ is zero. The first feature that should be noted is that the predicted value from the smoothed time series, labeled ``EWMA prediction'', eventually approaches the predicted value for the AR process. The second significant feature is that the EWMA prediction interval also approaches the interval from the one step-ahead AR forecast.
+
 \centerline{\includegraphics[scale=0.35]{plots/sim_2.pdf}}
+
+In the second plot, the EWMA weights $\alpha$ and $\beta$ are unchanged from the first plot but the $\phi$ coefficient of the simulated AR series is increased to 0.5. Observe that both the confidence interval lines and predicted values of the smoothed series deviate significantly from the values calculated using the corresponding AR model.
+
 \centerline{\includegraphics[scale=0.35]{plots/sim_3.pdf}}
+
+In the third plot, the coefficient $\phi$ is reduced to 0.2 and the smoothing parameter $\alpha$ is increased to 0.1, which increases the influence of newer values. Observe that in this case, the smoothed values do not deviate as significantly as in the previous example, but seem to have higher variability.
+
 \centerline{\includegraphics[scale=0.35]{plots/sim_4.pdf}}
+
+In the final plot, we decrease $\alpha$ to 0.01 but introduce the $\beta$ parameter set to 0.2. The non-zero $\beta$ parameter introduces a non-zero trend in the smoothed series, which is why the smoothed values and their corresponding prediction intervals start to move away from a zero mean at around timestamp 100.
 
 \subsection{Coverage probabilities}
 
-The coverage probabilities were tested against the AR(1) process described in the previous section. In order to calculate the coverage probability, we calculate the number of times a newly observed value falls outside of the predicted interval for that value. First, we simulate an AR(1) process as before. We run the simulation and stop at least one step before the end. Finally, we compare the next simulated value against the prediction interval of the smoothed series. We increment a counter if the value falls outside of the prediction interval. This process is repeated for at least 5000 iterations.
+The coverage probabilities were tested against the AR(1) process described in the previous section. In order to calculate the coverage probability, we calculate the number of times a newly observed value falls inside of the predicted interval for that value. First, we simulate an AR(1) process as before. We run the simulation and stop at least one step before the end. Finally, we compare the next simulated value against the prediction interval of the smoothed series using \eqref{s_t_prediction_interval}. We increment a counter if the value falls inside of the prediction interval. This process is repeated for at least 5000 iterations.
 
 As the table shows, the choices of $\alpha$ and $\beta$ greatly affect the overall coverage probabilities. In practice, many combinations of these parameters should be checked in order to select optimal values.
 
@@ -96,7 +114,11 @@ Iterations & $\alpha$ & $\beta$ & Expected & Actual & Absolute difference \\ \hl
 
 \section{Smoothed MA(1)}
 
-Let $x_t$ be MA(1).
+Let $x_t$ be MA(1), which is defined as
+
+\[
+x_t = w_t + \theta w_{t-1}.
+\]
 
 \begin{equation} \label{ma1_mean_variance}
 \begin{aligned}
@@ -120,7 +142,7 @@ s_t = \alpha x_{t} + (1 - \alpha) s_{t-1}.
 
 Using \eqref{s_t_def}, we calculate the first few terms of $s_t$.
 
-\begin{equation}
+\[
 \begin{aligned}
 s_1 &= (1 - \alpha) s_0 + \alpha x_1 \\
 s_2 &= \left [ (1 - \alpha) s_0 + \alpha x_1 \right ] (1 - \alpha) + \alpha x_2 \\
@@ -128,13 +150,13 @@ s_2 &= \left [ (1 - \alpha) s_0 + \alpha x_1 \right ] (1 - \alpha) + \alpha x_2 
 s_3 &= \left [ (1 - \alpha)^2 s_0 + \alpha (1 - \alpha) x_1 + \alpha x_2 \right ] (1 - \alpha) + \alpha x_3 \\
     &= (1 - \alpha)^3 s_0 + \alpha(1 - \alpha)^2 x_1 + \alpha (1 - \alpha) x_2 + \alpha x_3
 \end{aligned}
-\end{equation}
+\]
 
 This can be rewritten in iterative form as
 
-\begin{equation}
+\[
 s_t = (1 - \alpha)^t s_0 + \alpha \sum_{i=1}^t (1 - \alpha)^{t-i} x_i.
-\end{equation}
+\]
 
 \subsection{Variance of $s_t$}
 
@@ -155,14 +177,14 @@ Recall the following identity
 
 Using \eqref{var_of_sum_variables}, we can rewrite \eqref{var_s_t} as
 
-\begin{equation}
+\[
 \begin{aligned}
 \text{Var}(s_t) &= \text{Var} \left ( \alpha \sum_{i=1}^t (1 - \alpha)^{t-i} x_i \right ) \\
-                &= \sum_{i=1}^t \text{Var} \left ( \alpha (1-\alpha)^{t-i} x_i \right ) + \sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i}, \alpha(1 - \alpha)^{t-j} \right ]
+                &= \sum_{i=1}^t \text{Var} \left ( \alpha (1-\alpha)^{t-i} x_i \right ) + \sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i} x_i, \alpha(1 - \alpha)^{t-j} x_j \right ]
 \end{aligned}
-\end{equation}
+\]
 
-We compute the two terms independently starting with the left.
+We compute the two terms separately starting with the left.
 
 \[
 	\sum_{i=1}^t \text{Var} \left ( \alpha (1 - \alpha)^{t-i} x_i \right ) = \sum_{i=1}^t \alpha^2 (1 - \alpha)^{2t - 2i} \text{Var} (x_i)
@@ -178,7 +200,7 @@ For the right term, we arrive at the following
 
 \begin{equation} \label{ma1_variance_part2_1}
 \begin{aligned}
-\sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i}, \alpha(1 - \alpha)^{t-j} \right ] &= \sum_{i \ne j} \alpha^2 (1 - \alpha)^{2t - i - j} \text{Cov} (x_i, x_j)
+\sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i} x_i, \alpha(1 - \alpha)^{t-j} x_j \right ] &= \sum_{i \ne j} \alpha^2 (1 - \alpha)^{2t - i - j} \text{Cov} (x_i, x_j)
 \end{aligned}
 \end{equation}
 
@@ -187,13 +209,13 @@ Therefore, \eqref{ma1_variance_part2_1} can be rewritten as
 
 \begin{equation} \label{ma1_variance_part2_2}
 \begin{aligned}
-\sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i}, \alpha(1 - \alpha)^{t-j} \right ] &= 2 \sigma^2 \theta \sum_{i=1}^{t-1} \alpha^2 (1-\alpha)^{2 t - (2 i + 1)}.
+\sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i} x_i, \alpha(1 - \alpha)^{t-j} x_j \right ] &= 2 \sigma^2 \theta \sum_{i=1}^{t-1} \alpha^2 (1-\alpha)^{2 t - (2 i + 1)}.
 \end{aligned}
 \end{equation}
 
 Combining \eqref{ma1_variance_part1} and \eqref{ma1_variance_part2_2}, we get
 
-\begin{equation}
+\begin{equation} \label{ma1_closed_form_variance}
 \begin{aligned}
 \text{Var}(s_t) &= \text{Var} \left ( \alpha \sum_{i=1}^t (1 - \alpha)^{t-i} x_i \right ) \\
                 &= \sigma^2 (\theta^2 + 1) \sum_{i=1}^t \alpha^2 (1 - \alpha)^{2t - 2i} + 2 \sigma^2 \theta \sum_{i=1}^{t-1} \alpha^2 (1-\alpha)^{2 t - (2 i + 1)}
@@ -206,12 +228,12 @@ $\square$
 
 \subsection{Empirical results}
 
-The previously discussed simulation was modified to use a simulated MA(1) using \texttt{arima.sim}. For $n$ iterations, the $t$-th value of the smoothed time series $s_t$ was collected. The variance of these collected values was compared to the closed-form variance derived in the previous section.
+The previously discussed simulation was modified to use a simulated MA(1) using \texttt{arima.sim}. For $n$ iterations, the $t$-th value of the smoothed time series $s_t$ was collected. The variance of these collected values was compared to the closed-form variance \eqref{ma1_closed_form_variance} derived in the previous section.
 
 \bigskip
 
 \begin{tabular}{llllllll}
-$n$ & $\theta$ & $\sigma$ & t & $\alpha$ & Iterative variance & Closed-form variance & Absolute difference \\ \hline
+$n$ & $\theta$ & $\sigma$ & t & $\alpha$ & Empirical variance & Closed-form variance & Absolute difference \\ \hline
 20000 & 0.1 & 1 & 1 & 1 & 1.006463 & 1.010000 & 0.00354 \\
 20000 & 0.1 & 1 & 1 & 0.5 & 0.2543537 & 0.2525000 & 0.00185 \\
 20000 & 0.1 & 1 & 10 & 0.5 & 0.3648053 & 0.3699996 & 0.00519 \\
@@ -219,6 +241,14 @@ $n$ & $\theta$ & $\sigma$ & t & $\alpha$ & Iterative variance & Closed-form vari
 20000 & 0.1 & 1 & 20 & 0.5 & 0.3649438 & 0.3700000 & 0.00506 \\
 20000 & 0.1 & 1 & 50 & 0.5 & 0.3778751 & 0.3700000 & 0.00788
 \end{tabular}
+
+\section{Smoothed MA(2)}
+
+(TODO)
+
+\section{Smoothed MA(q)}
+
+(TODO)
 
 %% References
 \begin{thebibliography}{9}
