@@ -37,13 +37,13 @@ b_t &= \beta (s_t - s_{t-1}) + (1 - \beta) b_{t-1}
 
 Finally, to account for a multiplicative seasonality, we introduce another smoothing parameter, $\gamma$.
 
-\begin{equation} \label{triple_ewma}
+\[
 \begin{aligned}
 s_t &= \alpha \frac{x_{t}}{g_{t-L}} + (1 - \alpha) (s_{t-1} + b_{t-1}) \\
 b_t &= \beta (s_t - s_{t-1}) + (1 - \beta) b_{t-1} \\
 g_t &= \gamma \frac{x_t}{s_t} + (1 - \gamma) g_{t-L}
 \end{aligned}
-\end{equation}
+\]
 
 For our purposes, we will not consider seasonality.
 
@@ -142,7 +142,7 @@ s_t = \alpha x_{t} + (1 - \alpha) s_{t-1}.
 
 Using \eqref{s_t_def}, we calculate the first few terms of $s_t$.
 
-\begin{equation}
+\[
 \begin{aligned}
 s_1 &= (1 - \alpha) s_0 + \alpha x_1 \\
 s_2 &= \left [ (1 - \alpha) s_0 + \alpha x_1 \right ] (1 - \alpha) + \alpha x_2 \\
@@ -150,13 +150,13 @@ s_2 &= \left [ (1 - \alpha) s_0 + \alpha x_1 \right ] (1 - \alpha) + \alpha x_2 
 s_3 &= \left [ (1 - \alpha)^2 s_0 + \alpha (1 - \alpha) x_1 + \alpha x_2 \right ] (1 - \alpha) + \alpha x_3 \\
     &= (1 - \alpha)^3 s_0 + \alpha(1 - \alpha)^2 x_1 + \alpha (1 - \alpha) x_2 + \alpha x_3
 \end{aligned}
-\end{equation}
+\]
 
 This can be rewritten in iterative form as
 
-\begin{equation}
+\[
 s_t = (1 - \alpha)^t s_0 + \alpha \sum_{i=1}^t (1 - \alpha)^{t-i} x_i.
-\end{equation}
+\]
 
 \subsection{Variance of $s_t$}
 
@@ -177,12 +177,12 @@ Recall the following identity
 
 Using \eqref{var_of_sum_variables}, we can rewrite \eqref{var_s_t} as
 
-\begin{equation}
+\[
 \begin{aligned}
 \text{Var}(s_t) &= \text{Var} \left ( \alpha \sum_{i=1}^t (1 - \alpha)^{t-i} x_i \right ) \\
                 &= \sum_{i=1}^t \text{Var} \left ( \alpha (1-\alpha)^{t-i} x_i \right ) + \sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i} x_i, \alpha(1 - \alpha)^{t-j} x_j \right ]
 \end{aligned}
-\end{equation}
+\]
 
 We compute the two terms separately starting with the left.
 
