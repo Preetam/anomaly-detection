@@ -177,12 +177,12 @@ Recall the following identity
 
 Using \eqref{var_of_sum_variables}, we can rewrite \eqref{var_s_t} as
 
-\[
+\begin{equation} \label{var_s_t_two_terms}
 \begin{aligned}
 \text{Var}(s_t) &= \text{Var} \left ( \alpha \sum_{i=1}^t (1 - \alpha)^{t-i} x_i \right ) \\
                 &= \sum_{i=1}^t \text{Var} \left ( \alpha (1-\alpha)^{t-i} x_i \right ) + \sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i} x_i, \alpha(1 - \alpha)^{t-j} x_j \right ]
 \end{aligned}
-\]
+\end{equation}
 
 We compute the two terms separately starting with the left.
 
@@ -244,13 +244,75 @@ $n$ & $\theta$ & $\sigma$ & t & $\alpha$ & Empirical variance & Closed-form vari
 
 \section{Smoothed MA(2)}
 
-(TODO)
+Let $x_t$ be MA(2), which is defined as
+
+\[
+x_t = w_t + \theta_1 w_{t-1} + \theta_2 w_{t-2}.
+\]
+
+\begin{equation} \label{ma2_mean_variance}
+\begin{aligned}
+\text{E}(x_t) &= 0 \\
+\text{Var}(x_t) &= \sigma^2 (1 + \theta_1^2 + \theta_2^2) \\
+\textrm{Cov}(x_t, x_{t+h}) &=\begin{cases}
+    \sigma^2 (1 + \theta_1^2 + \theta_2^2), & \text{if $h = 0$}.\\
+    \sigma^2 (\theta_1 + \theta_1 \theta_2), & \text{if $h = 1$}.\\
+    \sigma^2 \theta_2, & \text{if $h = 2$}.\\
+    0, & \text{otherwise}.
+  \end{cases}
+\end{aligned}
+\end{equation}
+
+As with the MA(1) case, we define $s_t$ as $x_t$ with single exponential smoothing with parameter $\alpha$, i.e.
+
+\begin{equation} \label{s_t_def}
+s_t = \alpha x_{t} + (1 - \alpha) s_{t-1}.
+\end{equation}
+
+Recall from \eqref{var_s_t_two_terms} that we can express $\text{Var}(s_t)$ as
+
+\[
+\text{Var} \left ( \alpha \sum_{i=1}^t (1 - \alpha)^{t-i} x_i \right ) \\
+                = \sum_{i=1}^t \text{Var} \left ( \alpha (1-\alpha)^{t-i} x_i \right ) + \sum_{i \ne j} \text{Cov} \left [ \alpha(1-\alpha)^{t-i} x_i, \alpha(1 - \alpha)^{t-j} x_j \right ].
+\]
+
+We repeat the procedure applied for the MA(1) case. The first term on the right hand side becomes
+
+\[
+\sum_{i=1}^t \alpha^2 (1 - \alpha)^{2t - 2i} \text{Var}(x_i)
+= \sum_{i=1}^t \alpha^2 (1 - \alpha)^{2t - 2i} \left ( \sigma^2 (1 + \theta_1^2 + \theta_2^2) \right ) \\
+= \sigma^2 (1 + \theta_1^2 + \theta_2^2) \sum_{i=1}^t \alpha^2 (1 - \alpha)^{2t - 2i}.
+\]
+
+For the second term, we have
+
+\[
+\sum_{i \ne j} \alpha^2 (1 - \alpha)^{2t - i - j} \text{Cov} (x_i, x_j) \\
+= 2 \sigma^2 (\theta_1 + \theta_1 \theta_2) \sum_{i=1}^{t-1} \alpha^2 (1-\alpha)^{2 t - (2 i + 1)} \\
++ 2 \sigma^2 \theta_2 \sum_{i=1}^{t-2} \alpha^2 (1-\alpha)^{2 t - (2 i + 2)}.
+\]
+
+Therefore,
+
+\[
+\begin{aligned}
+\text{Var}(s_t) &= \sigma^2 (1 + \theta_1^2 + \theta_2^2) \sum_{i=1}^t \alpha^2 (1 - \alpha)^{2t - 2i} \\
+&+ 2 \sigma^2 (\theta_1 + \theta_1 \theta_2) \sum_{i=1}^{t-1} \alpha^2 (1-\alpha)^{2 t - (2 i + 1)} \\
+&+ 2 \sigma^2 \theta_2 \sum_{i=1}^{t-2} \alpha^2 (1-\alpha)^{2 t - (2 i + 2)}.
+\end{aligned}
+\]
 
 \section{Smoothed MA(q)}
 
-(TODO)
+\[
+\begin{aligned}
+\text{Var}(s_t) &= \text{Var}(x_t) \sum_{i=1}^t \alpha^2 (1 - \alpha)^{2t - 2i}\\
+&+ 2 \sum_{h=1}^\infty \text{Cov}(x_t, x_{t-h}) \alpha^2 (1 - \alpha)^{2t - (2i+h)}
+\end{aligned}
+\]
 
 %% References
+\newpage
 \begin{thebibliography}{9}
 
 \bibitem{kalekar}
