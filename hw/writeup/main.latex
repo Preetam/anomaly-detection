@@ -16,7 +16,7 @@
 
 \subsection{Motivation}
 
-Anomaly detection in time series is used to detect observations that significantly deviate from a usual pattern or range. This is extremely important for monitoring systems. A major issue in monitoring systems is that they deal with many time series metrics with varying and complicated characteristics. It is unreasonable to fit accurate models to every time series to detect anomalous observations. We propose double exponential smoothing as a method of addressing this problem. Double exponential smoothing provides a method for adaptive anomaly detection of time series with minimal assumptions made on the input data.
+Anomaly detection in time series is used to detect observations that significantly deviate from a usual pattern or range. This is extremely important for monitoring systems. A major issue in monitoring systems is that they deal with many time series metrics with varying and complicated characteristics. It is unreasonable to fit accurate models to every time series to detect anomalous observations. Anomaly detection in time series is also done online as new observations of a process arrive. As a result, recursive algorithms are necessary. We propose double exponential smoothing as a method of addressing this problem. Double exponential smoothing provides a method for adaptive anomaly detection of time series with minimal assumptions made on the input data.
 
 \subsection{Holt-Winters}
 
@@ -26,7 +26,7 @@ The Holt-Winters method is generally known as a method of triple exponential smo
 s_t = \alpha x_{t} + (1 - \alpha) s_{t-1}.
 \end{equation}
 
-We can introduce another smoothing parameter, $\beta$, to account for a linear trend.
+We can introduce another smoothing parameter, $\beta$, to account for a linear trend (citation???).
 
 \begin{equation} \label{double_ewma}
 \begin{aligned}
@@ -46,6 +46,8 @@ g_t &= \gamma \frac{x_t}{s_t} + (1 - \gamma) g_{t-L}
 \]
 
 For our purposes, we will not consider seasonality.
+
+%% Why not seasonality? %%
 
 \subsection{``Anomaly detection''}
 
